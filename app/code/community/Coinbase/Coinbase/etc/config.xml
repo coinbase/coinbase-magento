@@ -5,6 +5,17 @@
             <version>1.0</version>
         </Coinbase_Coinbase>
     </modules>
+	<frontend>
+        <routers>
+            <coinbase_coinbase>
+                <use>standard</use>
+                <args>
+                    <module>Coinbase_Coinbase</module>
+                    <frontName>coinbase_coinbase</frontName>
+                </args>
+            </coinbase_coinbase>
+        </routers>
+    </frontend>
     <global>
         <blocks>
             <Coinbase>
@@ -48,6 +59,7 @@
                 <title>Bitcoin (powered by Coinbase)</title>
  
                 <payment_action>authorize</payment_action>
+                <callback_secret>generate</callback_secret>
             </Coinbase>
          </payment>
     </default>

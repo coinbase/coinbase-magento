@@ -58,11 +58,33 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
     public function authorize(Varien_Object $payment, $amount) 
     {
     
+      require_once(Mage::getModuleDir('coinbase-php', 'Coinbase_Coinbase') . "/coinbase-php/Coinbase.php");
+    
       // Step 1: Use the Coinbase API to create redirect URL.
-      $redirectUrl = 'https://coinbase.com/checkouts/4d4b84bbad4508b64b61d372ea394dad';
+      $coinbase = new Coinbase('fb9c14477034b3b3f979d91ddc988cdd6ad71fe56b64cd6426cdbc0e012d8559');
+
+      $order = $payment->getOrder();
+      $currency = $order->getBaseCurrencyCode();
+
+      $callbackSecret = Mage::getStoreConfig('payment/Coinbase/callback_secret');
+      if($callbackSecret == "generate") {
+        // Not completely secure, but technically this secure parameter
+        // is not even required because we verify the transaction in the callback.
+        // This is "just in case"
+        $callbackSecret = md5('secret_' . mt_rand());
+        Mage::getModel('core/config')->saveConfig('payment/Coinbase/callback_secret', $callbackSecret);
+      }
+      
+      $code = $coinbase->createButton("Order #" . $order['increment_id'], $amount, $currency, $order->getId(), array(
+        'description' => 'Order #' . $order['increment_id'],
+        'callback_url' => Mage::getUrl('coinbase_coinbase'). 'callback/callback/?secret=' . $callbackSecret,
+        'success_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/success/',
+        'cancel_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/cancel/',
+      ))->button->code;
+      $redirectUrl = 'https://coinbase.com/checkouts/' . $code;
     
       // Step 2: Redirect customer to payment page
-      $payment->setIsTransactionPending(true); // Set status to Payment Review
+      $payment->setIsTransactionPending(true); // Set status to Payment Review while waiting for Coinbase postback
       Mage::getSingleton('customer/session')->setRedirectUrl($redirectUrl);
       
       return $this;
