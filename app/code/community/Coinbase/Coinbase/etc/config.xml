@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Coinbase_Coinbase>
+            <version>1.0</version>
+        </Coinbase_Coinbase>
+    </modules>
+    <global>
+        <blocks>
+            <Coinbase>
+                <class>Coinbase_Coinbase_Block</class>
+            </Coinbase>
+        </blocks>
+ 
+        <models>
+            <Coinbase>
+                <class>Coinbase_Coinbase_Model</class>
+            </Coinbase>
+        </models>
+ 
+        <resources>
+            <Coinbase_setup>
+                <setup>
+                    <module>Coinbase_Coinbase</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </Coinbase_setup>
+            <Coinbase_write>
+                <connection>
+                  <use>core_write</use>
+                </connection>
+            </Coinbase_write>
+            <Coinbase_read>
+               <connection>
+                <use>core_read</use>
+              </connection>
+            </Coinbase_read>
+        </resources>
+    </global>
+ 
+    <default>
+        <payment>
+            <Coinbase>
+                <active>0</active>
+                <model>Coinbase/paymentMethod</model>
+                <order_status>pending</order_status>
+                <title>Bitcoin (powered by Coinbase)</title>
+ 
+                <payment_action>authorize</payment_action>
+                <allowspecific>0</allowspecific>
+            </Coinbase>
+         </payment>
+    </default>
+</config>

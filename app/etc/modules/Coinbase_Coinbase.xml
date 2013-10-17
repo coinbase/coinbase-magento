@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Coinbase_Coinbase>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+            </depends>
+        </Coinbase_Coinbase>
+    </modules>
+</config>
