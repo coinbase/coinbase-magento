@@ -1,8 +1,8 @@
 <?php
  
-class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Cc
+class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Abstract
 {
-    protected $_code = 'coinbase';
+    protected $_code = 'Coinbase';
  
     /**
      * Is this payment method a gateway (online auth/charge) ?
@@ -17,7 +17,7 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Cc
     /**
      * Can capture funds online?
      */
-    protected $_canCapture              = true;
+    protected $_canCapture              = false;
  
     /**
      * Can capture partial amounts online?
@@ -53,12 +53,24 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Cc
      * Can save credit card information for future processing?
      */
     protected $_canSaveCc = false;
- 
-    /**
-     * Here you will need to implement authorize, capture and void public methods
-     *
-     * @see examples of transaction specific public methods such as
-     * authorize, capture and void in Mage_Paygate_Model_Authorizenet
-     */
+  
+  
+    public function authorize(Varien_Object $payment, $amount) 
+    {
+    
+      // Step 1: Use the Coinbase API to create redirect URL.
+      $redirectUrl = 'https://coinbase.com/checkouts/4d4b84bbad4508b64b61d372ea394dad';
+    
+      // Step 2: Redirect customer to payment page
+      $payment->setIsTransactionPending(true); // Set status to Payment Review
+      Mage::getSingleton('customer/session')->setRedirectUrl($redirectUrl);
+      
+      return $this;
+    }
+    
+    public function getOrderPlaceRedirectUrl()
+    {
+      return Mage::getSingleton('customer/session')->getRedirectUrl();
+    }
 }
 ?>

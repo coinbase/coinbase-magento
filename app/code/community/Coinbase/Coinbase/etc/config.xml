@@ -43,13 +43,11 @@
     <default>
         <payment>
             <Coinbase>
-                <active>0</active>
+                <active>1</active>
                 <model>Coinbase/paymentMethod</model>
-                <order_status>pending</order_status>
                 <title>Bitcoin (powered by Coinbase)</title>
  
                 <payment_action>authorize</payment_action>
-                <allowspecific>0</allowspecific>
             </Coinbase>
          </payment>
     </default>
