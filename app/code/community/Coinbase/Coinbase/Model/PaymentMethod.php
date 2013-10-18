@@ -57,11 +57,21 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
   
     public function authorize(Varien_Object $payment, $amount) 
     {
-    
+
       require_once(Mage::getModuleDir('coinbase-php', 'Coinbase_Coinbase') . "/coinbase-php/Coinbase.php");
-    
+
       // Step 1: Use the Coinbase API to create redirect URL.
-      $coinbase = new Coinbase('fb9c14477034b3b3f979d91ddc988cdd6ad71fe56b64cd6426cdbc0e012d8559');
+      $clientId = Mage::getStoreConfig('payment/Coinbase/oauth_clientid');
+      $clientSecret = Mage::getStoreConfig('payment/Coinbase/oauth_clientsecret');
+      $redirectUrl = Mage::getUrl('coinbase_coinbase'). 'oauth/redirect/';
+      $oauth = new Coinbase_Oauth($clientId, $clientSecret, $redirectUrl);
+      $tokens = Mage::getStoreConfig('payment/Coinbase/oauth_tokens');
+
+      if($tokens === null) {
+        throw new Exception("Before using the Coinbase plugin, you need to connect a merchant account in Magento Admin > Configuration > System > Payment Methods > Coinbase.");
+      }
+
+      $coinbase = new Coinbase(new Coinbase_Oauth($clientId, $clientSecret, $tokens));
 
       $order = $payment->getOrder();
       $currency = $order->getBaseCurrencyCode();

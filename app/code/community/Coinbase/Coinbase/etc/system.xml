@@ -29,10 +29,38 @@
 							<show_in_store>0</show_in_store>
 						</title>
 						
+						<oauth translate="label">
+							<label>Merchant Account</label>
+							<frontend_type>text</frontend_type>
+                            <frontend_model>Coinbase/oauth</frontend_model>
+							<sort_order>2</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</oauth>
+						
+						<oauth_clientid translate="label">
+							<label>Client ID</label>
+							<frontend_type>text</frontend_type>
+							<sort_order>3</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</oauth_clientid>
+						
+						<oauth_clientsecret translate="label">
+							<label>Client Secret</label>
+							<frontend_type>text</frontend_type>
+							<sort_order>4</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</oauth_clientsecret>
+						
 						<sort_order translate="label">
 							<label>Sort Order</label>
 							<frontend_type>text</frontend_type>
-							<sort_order>2</sort_order>
+							<sort_order>5</sort_order>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
