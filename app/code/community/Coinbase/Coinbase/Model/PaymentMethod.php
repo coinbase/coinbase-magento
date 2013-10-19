@@ -63,15 +63,14 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
       // Step 1: Use the Coinbase API to create redirect URL.
       $clientId = Mage::getStoreConfig('payment/Coinbase/oauth_clientid');
       $clientSecret = Mage::getStoreConfig('payment/Coinbase/oauth_clientsecret');
-      $redirectUrl = Mage::getUrl('coinbase_coinbase'). 'oauth/redirect/';
+      $redirectUrl = Mage::getUrl("coinbase_coinbase/redirect/oauth");
       $oauth = new Coinbase_Oauth($clientId, $clientSecret, $redirectUrl);
-      $tokens = Mage::getStoreConfig('payment/Coinbase/oauth_tokens');
+      $tokens = unserialize(Mage::getStoreConfig('payment/Coinbase/oauth_tokens'));
 
       if($tokens == null) {
         throw new Exception("Before using the Coinbase plugin, you need to connect a merchant account in Magento Admin > Configuration > System > Payment Methods > Coinbase.");
       }
 
-      $oauth = new Coinbase_Oauth($clientId, $clientSecret, $redirectUrl);
       $coinbase = new Coinbase($oauth, $tokens);
 
       $order = $payment->getOrder();
@@ -79,39 +78,41 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
 
       $callbackSecret = Mage::getStoreConfig('payment/Coinbase/callback_secret');
       if($callbackSecret == "generate") {
-        // Not completely secure, but technically this secure parameter
-        // is not even required because we verify the transaction in the callback.
-        // This is "just in case"
+        // Important to keep the callback URL a secret
         $callbackSecret = md5('secret_' . mt_rand());
         Mage::getModel('core/config')->saveConfig('payment/Coinbase/callback_secret', $callbackSecret);
       }
       
-      $tryAgain = true;
-      while($tryAgain) {
-        try {
-          $code = $coinbase->createButton("Order #" . $order['increment_id'], $amount, $currency, $order->getId(), array(
+      $name = "Order #" . $order['increment_id'];
+      $custom = $order->getId();
+      $params = array(
             'description' => 'Order #' . $order['increment_id'],
             'callback_url' => Mage::getUrl('coinbase_coinbase'). 'callback/callback/?secret=' . $callbackSecret,
             'success_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/success/',
             'cancel_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/cancel/',
-          ))->button->code;
-          $tryAgain = false;
+          );
+      
+      // Generate the code
+      try {
+        $code = $coinbase->createButton($name, $amount, $currency, $custom, $params)->button->code;
+      } catch (Coinbase_TokensExpiredException $e) {
+        // Refresh tokens
+        try {
+          $tokens = $oauth->refreshTokens($tokens);
+        } catch (Exception $f) {
+          // Give up. 
+          tokenFail();
+        }
+        // Save new tokens
+        Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', $tokens);
+        // And try again...
+        try {
+          $code = $coinbase->createButton($name, $amount, $currency, $custom, $params)->button->code;
         } catch (Coinbase_TokensExpiredException $e) {
-          // Refresh tokens
-          try {
-            $tokens = $oauth->refreshTokens($tokens);
-          } catch (Exception $f) {
-            // Give up. 
-            Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_clientid', null);
-            Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_clientsecret', null);
-            Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', null);
-            throw new Exception("Before using the Coinbase plugin, you need to connect a merchant account in Magento Admin > Configuration > System > Payment Methods > Coinbase.");
-          }
-          Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', $tokens);
-          // And try again...
+          // Give up. 
+          tokenFail();
         }
       }
-      
       $redirectUrl = 'https://coinbase.com/checkouts/' . $code;
     
       // Step 2: Redirect customer to payment page
@@ -120,6 +121,14 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
       
       return $this;
     }
+    
+    function tokenFail() {
+    
+      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_clientid', null);
+      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_clientsecret', null);
+      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', null);
+      throw new Exception("Before using the Coinbase plugin, you need to connect a merchant account in Magento Admin > Configuration > System > Payment Methods > Coinbase.");
+   }
     
     public function getOrderPlaceRedirectUrl()
     {
