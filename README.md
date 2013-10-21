@@ -3,6 +3,8 @@ coinbase-magento
 
 Accept Bitcoin on your Magento-powered website with Coinbase. 
 
+Download the plugin here: https://github.com/coinbase/coinbase-magento/archive/master.zip
+
 Installation
 -------
 
