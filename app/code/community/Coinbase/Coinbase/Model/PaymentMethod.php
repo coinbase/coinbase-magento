@@ -91,6 +91,7 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
             'callback_url' => Mage::getUrl('coinbase_coinbase'). 'callback/callback/?secret=' . $callbackSecret,
             'success_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/success/',
             'cancel_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/cancel/',
+            'info_url' => Mage::getBaseUrl(),
           );
       
       // Generate the code
