@@ -21,8 +21,10 @@ class Coinbase_Coinbase_Adminhtml_CoinbaseoauthController extends Mage_Adminhtml
         </body></html><?php
         return;
       }
-      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', serialize($tokens));
-
+      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', serialize($tokens))->cleanCache();
+      
+      // Required to make sure configuration saves
+      Mage::app()->getStore()->resetConfig();
       
       // Success!
       $this->_redirectUrl(Mage::helper("adminhtml")->getUrl('adminhtml/system_config/edit/section/payment') . '#coinbase-coinbase');
