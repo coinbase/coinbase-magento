@@ -17,4 +17,4 @@ After installation, open Magento Admin and navigate to System > Configuration > 
 
 Scroll down to 'Coinbase' and follow the instructions.
 
-![Setup](http://i.imgur.com/3yL9tNl.png)
+![Setup](http://i.imgur.com/cxLiQs4.png)
