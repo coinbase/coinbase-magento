@@ -80,7 +80,8 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
       if($callbackSecret == "generate") {
         // Important to keep the callback URL a secret
         $callbackSecret = md5('secret_' . mt_rand());
-        Mage::getModel('core/config')->saveConfig('payment/Coinbase/callback_secret', $callbackSecret);
+        Mage::getModel('core/config')->saveConfig('payment/Coinbase/callback_secret', $callbackSecret)->cleanCache();
+        Mage::app()->getStore()->resetConfig();
       }
       
       $name = "Order #" . $order['increment_id'];
@@ -127,7 +128,8 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
     
       Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_clientid', null);
       Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_clientsecret', null);
-      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', null);
+      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', null)->cleanCache();
+      Mage::app()->getStore()->resetConfig();
       throw new Exception("No account is connected, or the current account is not working. You need to connect a merchant account in Magento Admin > Configuration > System > Payment Methods > Coinbase. ($msg / $tokens)");
    }
     
