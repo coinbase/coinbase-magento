@@ -28,7 +28,7 @@ class Coinbase_Coinbase_RedirectController extends Mage_Core_Controller_Front_Ac
     
     public function oauthAction() {
 
-        $redirectUrlNoCode = Mage::getUrl("adminhtml/coinbaseoauth/redirect");
+        $redirectUrlNoCode = Mage::getUrl("adminhtml/coinbaseoauth/redirect", array('_secure' => 1));
         $this->_redirectUrl($redirectUrlNoCode . "key/$_GET[key]/?code=$_GET[code]&key=$_GET[key]");
     }
 
