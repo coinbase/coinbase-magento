@@ -16,17 +16,6 @@
             </coinbase_coinbase>
         </routers>
     </frontend>
-    <admin>
-        <routers>
-            <adminhtml>
-                <args>
-                    <modules>
-                        <coinbase_admin before="Mage_Adminhtml">Coinbase_Coinbase_Adminhtml</coinbase_admin>
-                    </modules>
-                </args>
-            </adminhtml>
-        </routers>
-    </admin>
     <global>
         <blocks>
             <Coinbase>

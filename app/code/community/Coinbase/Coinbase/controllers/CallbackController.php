@@ -13,12 +13,9 @@ class Coinbase_Coinbase_CallbackController extends Mage_Core_Controller_Front_Ac
 
       // To verify this callback is legitimate, we will:
       //   a) check with Coinbase the submitted order information is correct.
-      $clientId = Mage::getStoreConfig('payment/Coinbase/oauth_clientid');
-      $clientSecret = Mage::getStoreConfig('payment/Coinbase/oauth_clientsecret');
-      $redirectUrl = Mage::getUrl("coinbase_coinbase/redirect/oauth");
-      $oauth = new Coinbase_Oauth($clientId, $clientSecret, $redirectUrl);
-      $tokens = unserialize(Mage::getStoreConfig('payment/Coinbase/oauth_tokens'));
-      $coinbase = new Coinbase($oauth, $tokens);
+      $apiKey = Mage::getStoreConfig('payment/Coinbase/api_key');
+      $apiSecret = Mage::getStoreConfig('payment/Coinbase/api_secret');
+      $coinbase = Coinbase::withApiKey($apiKey, $apiSecret)
       $cbOrderId = $postBody->order->id;
       $orderInfo = $coinbase->getOrder($cbOrderId);
       if(!$orderInfo) {
