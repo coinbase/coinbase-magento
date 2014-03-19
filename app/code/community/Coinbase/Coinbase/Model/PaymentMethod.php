@@ -61,17 +61,14 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
       require_once(Mage::getModuleDir('coinbase-php', 'Coinbase_Coinbase') . "/coinbase-php/Coinbase.php");
 
       // Step 1: Use the Coinbase API to create redirect URL.
-      $clientId = Mage::getStoreConfig('payment/Coinbase/oauth_clientid');
-      $clientSecret = Mage::getStoreConfig('payment/Coinbase/oauth_clientsecret');
-      $redirectUrl = Mage::getUrl("coinbase_coinbase/redirect/oauth");
-      $oauth = new Coinbase_Oauth($clientId, $clientSecret, $redirectUrl);
-      $tokens = unserialize(Mage::getStoreConfig('payment/Coinbase/oauth_tokens'));
+      $apiKey = Mage::getStoreConfig('payment/Coinbase/api_key');
+      $apiSecret = Mage::getStoreConfig('payment/Coinbase/api_secret');
 
-      if($tokens == null) {
-        throw new Exception("Before using the Coinbase plugin, you need to connect a merchant account in Magento Admin > Configuration > System > Payment Methods > Coinbase.");
+      if($apiKey == null || $apiSecret == null) {
+        throw new Exception("Before using the Coinbase plugin, you need to enter an API Key and Secret in Magento Admin > Configuration > System > Payment Methods > Coinbase.");
       }
 
-      $coinbase = new Coinbase($oauth, $tokens);
+      $coinbase = Coinbase::withApiKey($apiKey, $apiSecret);
 
       $order = $payment->getOrder();
       $currency = $order->getBaseCurrencyCode();
@@ -97,24 +94,8 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
       // Generate the code
       try {
         $code = $coinbase->createButton($name, $amount, $currency, $custom, $params)->button->code;
-      } catch (Coinbase_TokensExpiredException $e) {
-        // Refresh tokens
-        try {
-          $tokens = $oauth->refreshTokens($tokens);
-        } catch (Exception $f) {
-          // Give up. 
-          $this->tokenFail($tokens, "Could not refresh tokens.");
-        }
-        // Save new tokens
-        Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', serialize($tokens));
-        $coinbase = new Coinbase($oauth, $tokens);
-        // And try again...
-        try {
-          $code = $coinbase->createButton($name, $amount, $currency, $custom, $params)->button->code;
-        } catch (Coinbase_TokensExpiredException $e) {
-          // Give up. 
-          $this->tokenFail($tokens, "Could not create button after refreshing tokens.");
-        }
+      } catch (Exception $e) {
+        throw new Exception("Could not generate checkout page. Double check your API Key and Secret. " . $e->getMessage());
       }
       $redirectUrl = 'https://coinbase.com/checkouts/' . $code;
     
@@ -124,15 +105,7 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
       
       return $this;
     }
-    
-    function tokenFail($tokens, $msg) {
-    
-      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_clientid', null);
-      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_clientsecret', null);
-      Mage::getModel('core/config')->saveConfig('payment/Coinbase/oauth_tokens', null)->cleanCache();
-      Mage::app()->getStore()->resetConfig();
-      throw new Exception("No account is connected, or the current account is not working. You need to connect a merchant account in Magento Admin > Configuration > System > Payment Methods > Coinbase. ($msg / $tokens)");
-   }
+
     
     public function getOrderPlaceRedirectUrl()
     {

@@ -36,16 +36,16 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
-						</oauth_clientid>
+						</api_key>
 						
 						<api_secret translate="label">
 							<label>API Secret</label>
-							<frontend_type>text</frontend_type>
+							<frontend_type>password</frontend_type>
 							<sort_order>4</sort_order>
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
-						</oauth_clientsecret>
+						</api_secret>
 						
 						<sort_order translate="label">
 							<label>Sort Order</label>

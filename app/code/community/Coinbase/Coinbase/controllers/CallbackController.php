@@ -15,7 +15,7 @@ class Coinbase_Coinbase_CallbackController extends Mage_Core_Controller_Front_Ac
       //   a) check with Coinbase the submitted order information is correct.
       $apiKey = Mage::getStoreConfig('payment/Coinbase/api_key');
       $apiSecret = Mage::getStoreConfig('payment/Coinbase/api_secret');
-      $coinbase = Coinbase::withApiKey($apiKey, $apiSecret)
+      $coinbase = Coinbase::withApiKey($apiKey, $apiSecret);
       $cbOrderId = $postBody->order->id;
       $orderInfo = $coinbase->getOrder($cbOrderId);
       if(!$orderInfo) {
