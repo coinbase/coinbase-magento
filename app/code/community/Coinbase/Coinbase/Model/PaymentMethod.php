@@ -89,6 +89,7 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
             'success_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/success/',
             'cancel_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/cancel/',
             'info_url' => Mage::getBaseUrl(),
+            'custom_secure' => true,
           );
       
       // Generate the code
