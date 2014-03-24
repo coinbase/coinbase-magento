@@ -19,7 +19,7 @@ After installation, open Magento Admin and navigate to System > Configuration > 
 
 Scroll down to 'Coinbase' and follow the instructions. If you can't find 'Coinbase', try clearing your Magento cache.
 
-![Setup](http://i.imgur.com/cxLiQs4.png)
+![Setup](http://i.imgur.com/VkFmy5a.png)
 
 Custom events
 -------
