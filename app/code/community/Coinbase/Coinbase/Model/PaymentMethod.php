@@ -81,13 +81,22 @@ class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Ab
         Mage::app()->getStore()->resetConfig();
       }
       
+      $successUrl = Mage::getStoreConfig('payment/Coinbase/custom_success_url');
+      $cancelUrl = Mage::getStoreConfig('payment/Coinbase/custom_cancel_url');
+      if ($successUrl == false) {
+        $successUrl = Mage::getUrl('coinbase_coinbase'). 'redirect/success/';
+      }
+      if ($cancelUrl == false) {
+        $cancelUrl = Mage::getUrl('coinbase_coinbase'). 'redirect/cancel/';
+      }
+
       $name = "Order #" . $order['increment_id'];
       $custom = $order->getId();
       $params = array(
             'description' => 'Order #' . $order['increment_id'],
             'callback_url' => Mage::getUrl('coinbase_coinbase'). 'callback/callback/?secret=' . $callbackSecret,
-            'success_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/success/',
-            'cancel_url' => Mage::getUrl('coinbase_coinbase'). 'redirect/cancel/',
+            'success_url' => $successUrl,
+            'cancel_url' => $cancelUrl,
             'info_url' => Mage::getBaseUrl(),
             'custom_secure' => true,
           );

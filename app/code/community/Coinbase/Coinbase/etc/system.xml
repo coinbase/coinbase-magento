@@ -55,8 +55,27 @@
 							<show_in_default>1</show_in_default>
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
+							<comment>Customize the order of the Coinbase plugin relative to other payment plugins.</comment>
 						</sort_order>
 						
+						<custom_success_url translate="label">
+							<label>Custom success URL</label>
+							<frontend_type>text</frontend_type>
+							<sort_order>6</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+						</custom_success_url>
+
+						<custom_cancel_url translate="label">
+							<label>Custom cancel URL</label>
+							<frontend_type>text</frontend_type>
+							<sort_order>7</sort_order>
+							<show_in_default>1</show_in_default>
+							<show_in_website>1</show_in_website>
+							<show_in_store>0</show_in_store>
+							<comment>Optional - use these settings to override the default success and cancel URLs if you are using a custom checkout module. Most users should not have to change these settings.</comment>
+						</custom_cancel_url>
 					</fields>
 				</Coinbase>
 			</groups>
