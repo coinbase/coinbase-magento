@@ -51,7 +51,7 @@ class Coinbase_Coinbase_CallbackController extends Mage_Core_Controller_Front_Ac
         $payment->registerCaptureNotification($orderInfo->total_native->cents / 100);
       } else {
         $cancelReason = $postBody->cancellation_reason;
-        $payment->registerCancellation("Coinbase order $cbOrderId cancelled: $cancelReason");
+        $order->registerCancellation("Coinbase order $cbOrderId cancelled: $cancelReason");
       }
 
       Mage::dispatchEvent('coinbase_callback_received', array('status' => $orderInfo->status, 'order_id' => $orderId));
