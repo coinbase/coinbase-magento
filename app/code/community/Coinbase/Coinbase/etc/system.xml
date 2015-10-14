@@ -9,7 +9,7 @@
 					<show_in_default>1</show_in_default>
 					<show_in_website>1</show_in_website>
 					<show_in_store>0</show_in_store>
-                    <comment><![CDATA[<b>Setup Instructions:</b><br><ol><li>Go to <a href="https://coinbase.com/settings/api">https://coinbase.com/settings/api</a> and click '+ New API Key' to generate an API Key and Secret for this plugin. You should create a 'HMAC' key with the permission 'merchant' only.</li><li>After generating the API key, click on the shortened representation of it (looks like 'kcyPDdpjgYk...') to view the full API Key + Secret.</li><li>Copy and paste the API Key and API Secret into the boxes below, and save the plugin settings.</li><li><b>After generating an API key, remember to enable it on the <a href="https://coinbase.com/settings/api">https://coinbase.com/settings/api</a> page! If the API Key is not enabled, the plugin will not work.</b><li></ol>]]></comment>
+                    <comment><![CDATA[<b>Setup Instructions:</b><br><ol><li>Go to <a href="https://www.coinbase.com/settings/api">https://www.coinbase.com/settings/api</a> and click '+ New API Key' to generate an API Key and Secret for this plugin. You should create a key with the permission 'wallet:checkouts:create' only.</li><li>After generating the API key, click on the shortened representation of it (looks like 'kcyPDdpjgYk...') to view the full API Key + Secret.</li><li>Copy and paste the API Key and API Secret into the boxes below, and save the plugin settings.</li><li><b>After generating an API key, remember to enable it on the <a href="https://coinbase.com/settings/api">https://coinbase.com/settings/api</a> page! If the API Key is not enabled, the plugin will not work.</b><li></ol>]]></comment>
 					<fields>
 						<active translate="label">
 							<label>Enabled</label>
@@ -20,7 +20,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</active>
-						
+
 						<title translate="label">
 							<label>Title</label>
 							<frontend_type>text</frontend_type>
@@ -29,7 +29,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</title>
-						
+
 						<api_key translate="label">
 							<label>API Key</label>
 							<frontend_type>text</frontend_type>
@@ -38,7 +38,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</api_key>
-						
+
 						<api_secret translate="label">
 							<label>API Secret</label>
 							<frontend_type>password</frontend_type>
@@ -47,7 +47,7 @@
 							<show_in_website>1</show_in_website>
 							<show_in_store>0</show_in_store>
 						</api_secret>
-						
+
 						<sort_order translate="label">
 							<label>Sort Order</label>
 							<frontend_type>text</frontend_type>
@@ -57,7 +57,7 @@
 							<show_in_store>0</show_in_store>
 							<comment>Customize the order of the Coinbase plugin relative to other payment plugins.</comment>
 						</sort_order>
-						
+
 						<custom_success_url translate="label">
 							<label>Custom success URL</label>
 							<frontend_type>text</frontend_type>
