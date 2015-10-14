@@ -1,0 +1,11 @@
+{
+    "name": "coinbase/coinbase-magento",
+    "description": "The official Coinbase Magento checkout plugin",
+    "keywords": [ "bitcoin", "coinbase", "magento" ],
+    "homepage": "https://www.coinbase.com",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "coinbase/coinbase": "^2.3"
+    }
+}

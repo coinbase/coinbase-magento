@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Coinbase_Coinbase>
-            <version>1.0</version>
+            <version>2.0</version>
         </Coinbase_Coinbase>
     </modules>
 	<frontend>
@@ -22,13 +22,19 @@
                 <class>Coinbase_Coinbase_Block</class>
             </Coinbase>
         </blocks>
- 
+
         <models>
             <Coinbase>
                 <class>Coinbase_Coinbase_Model</class>
             </Coinbase>
         </models>
- 
+
+        <helpers>
+            <Coinbase>
+                <class>Coinbase_Coinbase_Helper</class>
+            </Coinbase>
+        </helpers>
+
         <resources>
             <Coinbase_setup>
                 <setup>
@@ -50,16 +56,14 @@
             </Coinbase_read>
         </resources>
     </global>
- 
+
     <default>
         <payment>
             <Coinbase>
                 <active>1</active>
                 <model>Coinbase/paymentMethod</model>
                 <title>Bitcoin</title>
- 
-                <payment_action>authorize</payment_action>
-                <callback_secret>generate</callback_secret>
+                <payment_action>Sale</payment_action>
             </Coinbase>
          </payment>
     </default>

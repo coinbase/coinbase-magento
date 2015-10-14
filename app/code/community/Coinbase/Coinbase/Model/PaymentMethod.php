@@ -1,124 +1,88 @@
 <?php
- 
+
+require_once(Mage::getModuleDir('vendor', 'Coinbase_Coinbase') . "/vendor/autoload.php");
+
+use Coinbase\Wallet\Client;
+use Coinbase\Wallet\Configuration;
+use Coinbase\Wallet\Resource\Checkout;
+use Coinbase\Wallet\Value\Money;
+
 class Coinbase_Coinbase_Model_PaymentMethod extends Mage_Payment_Model_Method_Abstract
 {
     protected $_code = 'Coinbase';
- 
+    protected $_isInitializeNeeded      = true;
+
     /**
-     * Is this payment method a gateway (online auth/charge) ?
+     * Instantiate state and set it to state object
+     * @param string $paymentAction
+     * @param Varien_Object
      */
-    protected $_isGateway               = true;
- 
-    /**
-     * Can authorize online?
-     */
-    protected $_canAuthorize            = true;
- 
-    /**
-     * Can capture funds online?
-     */
-    protected $_canCapture              = false;
- 
-    /**
-     * Can capture partial amounts online?
-     */
-    protected $_canCapturePartial       = false;
- 
-    /**
-     * Can refund online?
-     */
-    protected $_canRefund               = false;
- 
-    /**
-     * Can void transactions online?
-     */
-    protected $_canVoid                 = false;
- 
-    /**
-     * Can use this payment method in administration panel?
-     */
-    protected $_canUseInternal          = true;
- 
-    /**
-     * Can show this payment method as an option on checkout payment page?
-     */
-    protected $_canUseCheckout          = true;
- 
-    /**
-     * Is this payment method suitable for multi-shipping checkout?
-     */
-    protected $_canUseForMultishipping  = true;
- 
-    /**
-     * Can save credit card information for future processing?
-     */
-    protected $_canSaveCc = false;
-  
-  
-    public function authorize(Varien_Object $payment, $amount) 
+    public function initialize($paymentAction, $stateObject)
     {
-
-      require_once(Mage::getModuleDir('coinbase-php', 'Coinbase_Coinbase') . "/coinbase-php/Coinbase.php");
-
-      // Step 1: Use the Coinbase API to create redirect URL.
-      $apiKey = Mage::getStoreConfig('payment/Coinbase/api_key');
-      $apiSecret = Mage::getStoreConfig('payment/Coinbase/api_secret');
-
-      if($apiKey == null || $apiSecret == null) {
-        throw new Exception("Before using the Coinbase plugin, you need to enter an API Key and Secret in Magento Admin > Configuration > System > Payment Methods > Coinbase.");
-      }
-
-      $coinbase = Coinbase::withApiKey($apiKey, $apiSecret);
-
-      $order = $payment->getOrder();
-      $currency = $order->getBaseCurrencyCode();
-
-      $callbackSecret = Mage::getStoreConfig('payment/Coinbase/callback_secret');
-      if($callbackSecret == "generate") {
-        // Important to keep the callback URL a secret
-        $callbackSecret = md5('secret_' . mt_rand());
-        Mage::getModel('core/config')->saveConfig('payment/Coinbase/callback_secret', $callbackSecret)->cleanCache();
-        Mage::app()->getStore()->resetConfig();
-      }
-      
-      $successUrl = Mage::getStoreConfig('payment/Coinbase/custom_success_url');
-      $cancelUrl = Mage::getStoreConfig('payment/Coinbase/custom_cancel_url');
-      if ($successUrl == false) {
-        $successUrl = Mage::getUrl('coinbase_coinbase'). 'redirect/success/';
-      }
-      if ($cancelUrl == false) {
-        $cancelUrl = Mage::getUrl('coinbase_coinbase'). 'redirect/cancel/';
-      }
-
-      $name = "Order #" . $order['increment_id'];
-      $custom = $order->getId();
-      $params = array(
-            'description' => 'Order #' . $order['increment_id'],
-            'callback_url' => Mage::getUrl('coinbase_coinbase'). 'callback/callback/?secret=' . $callbackSecret,
-            'success_url' => $successUrl,
-            'cancel_url' => $cancelUrl,
-            'info_url' => Mage::getBaseUrl()
-          );
-
-      // Generate the code
-      try {
-        $code = $coinbase->createButton($name, $amount, $currency, $custom, $params)->button->code;
-      } catch (Exception $e) {
-        throw new Exception("Could not generate checkout page. Double check your API Key and Secret. " . $e->getMessage());
-      }
-      $redirectUrl = 'https://coinbase.com/checkouts/' . $code;
-    
-      // Step 2: Redirect customer to payment page
-      $payment->setIsTransactionPending(true); // Set status to Payment Review while waiting for Coinbase postback
-      Mage::getSingleton('customer/session')->setRedirectUrl($redirectUrl);
-      
-      return $this;
+        $state = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
+        $stateObject->setState($state);
+        $stateObject->setStatus('pending_payment');
+        $stateObject->setIsNotified(false);
     }
 
-    
+    /**
+     * Get checkout session namespace
+     *
+     * @return Mage_Checkout_Model_Session
+     */
+    public function getCheckout()
+    {
+        return Mage::getSingleton('checkout/session');
+    }
+
+    public function getCheckoutUrl()
+    {
+        $apiKey = Mage::getStoreConfig('payment/Coinbase/api_key');
+        $apiSecret = Mage::getStoreConfig('payment/Coinbase/api_secret');
+        if($apiKey == null || $apiSecret == null) {
+            throw new Exception("Before using the Coinbase plugin, you need to enter an API Key and Secret in Magento Admin > Configuration > System > Payment Methods > Coinbase.");
+        }
+        $configuration = Configuration::apiKey($apiKey, $apiSecret);
+        $coinbase = Client::create($configuration);
+
+        $orderId = $this->getCheckout()->getLastRealOrderId();
+        $order = Mage::getModel('sales/order')->loadByIncrementId($orderId);
+
+        // Protect against callback replay attacks
+        $replayToken = bin2hex(openssl_random_pseudo_bytes(16));
+        $payment = $order->getPayment();
+        $payment->setAdditionalInformation("replay_token", $replayToken)->save();
+
+        $params = array(
+            'amount' => new Money(
+                $order->getTotalDue(),
+                $order->getBaseCurrencyCode()
+            ),
+            'name'              => "Order #" . $orderId,
+            'description'       => 'Order #' . $orderId,
+            'metadata'          => array(
+                'order_id' => $orderId,
+                'replay_token' => $replayToken
+            ),
+            'notifications_url' => Mage::getUrl('coinbase_coinbase/callback/callback'),
+            'success_url'       => Mage::getUrl('coinbase_coinbase/coinbase/success')
+        );
+
+        try {
+            $checkout = new Checkout($params);
+            $coinbase->createCheckout($checkout);
+            $code = $checkout->getEmbedCode();
+        } catch (Exception $e) {
+            $message = print_r($e, true);
+            Mage::log("Coinbase: Error generating checkout code $message", null, 'payment_coinbase.log');
+            Mage::throwException("There was a problem with your payment. Please select another payment method and try again.");
+        }
+
+        return 'https://www.coinbase.com/checkouts/' . $code;
+    }
+
     public function getOrderPlaceRedirectUrl()
     {
-      return Mage::getSingleton('customer/session')->getRedirectUrl();
+        return Mage::getUrl('coinbase_coinbase/coinbase/redirect');
     }
 }
-?>
