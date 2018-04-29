@@ -5,4 +5,4 @@ This plugin has been deprecated and will no longer work after April 30th, 2018. 
 
 [Coinbase Commerce](https://commerce.coinbase.com) is a new merchant payment processor that allows you to accept multiple cryptocurrencies. A Magento2 plugin for Coinbase Commerce will be released in Q2 2018 using the [Coinbase Commerce API](commerce.coinbase.com/docs/api).
 
-Archived plugin here: https://github.com/coinbase/coinbase-magento/archive.zip
+Archived plugin here: https://github.com/coinbase/coinbase-magento/blob/master/archive.zip
